@@ -112,6 +112,7 @@ void rgb_task(void *pvParameters)
     system_config_t *config = (system_config_t *)pvParameters;
 
     // Copia local de rangos; se actualiza cuando UART envia SET.
+    // Esto evita mantener el mutex bloqueado durante el ciclo de control PWM.
     color_config_t color_config;
     color_config.red = config->red;
     color_config.green = config->green;

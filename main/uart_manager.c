@@ -71,6 +71,14 @@ static void process_command(char *command, system_config_t *config)
     float min;
     float max;
 
+    // El parser acepta comandos serios de usuario y actualiza el estado global:
+    // - SET RED/GREEN/BLUE min max
+    // - TEMP C/K/F
+    // - RGB R/G/B valor
+    // - POT
+    // - LOGTIME segundos
+    // Los valores se guardan en `config` bajo mutex cuando es necesario.
+
     // SET <COLOR> <MIN> <MAX>: actualiza rangos de temperatura para el RGB.
     if (sscanf(command, "SET %15s %f %f", color, &min, &max) == 3)
     {
@@ -230,6 +238,7 @@ void uart_task(void *pvParameters)
     while (1)
     {
         // Lectura no permanente: despierta cada 100 ms aunque no llegue UART.
+        // Esto evita que la tarea quede bloqueada indefinidamente si no hay datos.
         int len = uart_read_bytes(UART_PORT_NUM,
                                   data,
                                   sizeof(data) - 1,
@@ -241,6 +250,7 @@ void uart_task(void *pvParameters)
             data[len] = '\0';
 
             // Elimina CR/LF enviados por monitores seriales al presionar Enter.
+            // Elimina CR y LF en caso de que el monitor serie los agregue.
             char *pos = strchr((char *)data, '\r');
             if (pos != NULL) {
                 *pos = '\0';

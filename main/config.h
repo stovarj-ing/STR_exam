@@ -45,6 +45,8 @@ typedef struct
     float temperature;
 } temperature_msg_t;
 
+// El struct temperature_msg_t define el mensaje que puede publicarse en
+// temperature_queue. Contiene la ultima medicion de temperatura en Celsius.
 typedef enum
 {
     // Unidad usada para imprimir la temperatura por UART/log.
@@ -74,6 +76,8 @@ typedef struct
 
     // Variables de estado leidas/escritas por varias tareas.
     float current_temperature;
+    // Valor reservado para un posible color de configuracion global.
+    // En este proyecto no se utiliza directamente, pero queda disponible.
     color_values_t current_color_setup;
     color_values_t rgb_intensity;
     temp_unit_t temperature_unit;

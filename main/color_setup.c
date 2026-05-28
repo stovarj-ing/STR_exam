@@ -24,6 +24,7 @@
 
 typedef struct {
     // Estado minimo para detectar pulsaciones con antirrebote por software.
+    // Este contexto recuerda la ultima lectura cruda y la lectura estable.
     int last_raw;
     int stable;
     TickType_t last_change_tick;
@@ -144,6 +145,8 @@ void color_setup_task(void *pvParameters)
     system_config_t *config = (system_config_t *)pvParameters;
 
     // Estado inicial coherente con pull-up: boton suelto = 1.
+    // El bucle lee el potenciómetro y enciende un LED externo si la
+    // temperatura está dentro del umbral definido por el potenciómetro.
     button_context_t button_ctx = {
         .last_raw = 1,
         .stable = 1,

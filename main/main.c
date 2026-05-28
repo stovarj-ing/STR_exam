@@ -16,6 +16,9 @@
 void app_main(void)
 {
     // Configuracion inicial del sistema antes de crear las tareas.
+    // El estado compartido se usa para pasar datos entre tareas sin usar
+    // variables globales dispersas. Cada tarea actualiza o lee campos de este
+    // struct protegido por `mutex`.
     static system_config_t config = {
         .red   = {50, 60},
         .green = {20, 30},
@@ -29,7 +32,8 @@ void app_main(void)
         .temperature_log_period_ms = 1000
     };
 
-    // mutex: estado compartido. adc_mutex: acceso exclusivo al ADC.
+    // mutex: controla acceso concurrente al estado compartido.
+    // adc_mutex: asegura que solo una tarea use el ADC a la vez.
     config.mutex = xSemaphoreCreateMutex();
     config.adc_mutex = xSemaphoreCreateMutex();
     if (config.mutex == NULL || config.adc_mutex == NULL) {
@@ -50,6 +54,8 @@ void app_main(void)
         return;
     }
 
+    // La cola de configuracion de color se crea para poder transmitir la ultima
+    // ventana de temperatura sin bloquear a la tarea emisora.
     config.color_setup_queue = xQueueCreate(1, sizeof(color_values_t));
     if (config.color_setup_queue == NULL) {
         ESP_LOGE(TAG, "Failed to create color_setup_queue");
@@ -66,6 +72,10 @@ void app_main(void)
     ESP_LOGI(TAG, "Starting tasks...");
 
     // Cada tarea recibe &config para compartir el estado del sistema.
+    // - uart_task: recibe comandos serie y actualiza configuracion.
+    // - rgb_task: enciende el RGB segun la temperatura y los rangos actuales.
+    // - temperature_task: mide el NTC y publica la temperatura.
+    // - color_setup_task: lee el potenciómetro, controla el LED externo y cambia la unidad.
     xTaskCreate(uart_task, "uart_task", 4096, &config, 6, NULL);
     xTaskCreate(rgb_task, "rgb_task", 4096, &config, 3, NULL);
     xTaskCreate(temperature_task, "temperature_task", 4096, &config, 3, NULL);

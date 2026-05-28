@@ -47,6 +47,7 @@ static const char *temperature_unit_symbol(temp_unit_t unit)
 void adc_init_ntc(adc_handles_t *adc_handles)
 {
     // Crea una unidad ADC en modo oneshot: cada lectura se solicita manualmente.
+    // En este proyecto usamos un solo ADC para dos canales: NTC y potenciómetro.
     adc_oneshot_unit_init_cfg_t init_config = {
         .unit_id = ADC_UNIT,
     };
@@ -149,6 +150,9 @@ void temperature_task(void *pvParameters)
         float temp = read_temperature(config);
         temp_msg.temperature = temp;
 
+        // Publica la ultima temperatura medida en la cola.
+        // Actualmente no hay consumidor definido en las tareas existentes,
+        // pero el mensaje queda disponible para extensiones futuras.
         xQueueOverwrite(config->temperature_queue, &temp_msg);
 
         xSemaphoreTake(config->mutex, portMAX_DELAY);

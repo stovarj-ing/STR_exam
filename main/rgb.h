@@ -24,7 +24,9 @@
 
 void rgb_init(void);
 
+// Ajusta el color del RGB controlado por temperatura.
 void rgb_set_temp(uint8_t r, uint8_t g, uint8_t b);
+// Ajusta el color del RGB que muestra la intensidad/configuracion.
 void rgb_set_config(uint8_t r, uint8_t g, uint8_t b);
 
 void rgb_task(void *pvParameters);

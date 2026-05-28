@@ -6,6 +6,7 @@
 #include "driver/uart.h"
 
 // UART0 funciona como consola serie para recibir comandos del usuario.
+// El buffer se usa para leer lineas completas de comando desde el puerto.
 #define UART_PORT_NUM      UART_NUM_0
 #define UART_BAUD_RATE     115200
 #define UART_BUFFER_SIZE   1024

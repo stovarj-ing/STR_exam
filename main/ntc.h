@@ -3,6 +3,7 @@
 
 #include "config.h"
 
+// El NTC se lee en el canal ADC1 del ADC1.
 #define ADC_CHANNEL ADC_CHANNEL_1
 #define ADC_UNIT    ADC_UNIT_1
 
